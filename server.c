@@ -15,6 +15,7 @@ int main(int argc, char** argv) {
     p = open(gevent, O_RDONLY);
     char message[2048];
     read(p,message,2048);
+    printf("%s", message);
     close(p);
 
     return 0;
