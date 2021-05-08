@@ -7,18 +7,14 @@
 
 int main(int argc, char** argv) {
     // Your code here
-    int p[2];
-    char * rd_pipe = "_RD";
-    char * wr_pipe = "_WR";
+    int p;
+    char * gevent = "gevent";
 
-    mkfifo(rd_pipe, 666);
-    mkfifo(wr_pipe, 666);
+    mkfifo(gevent, 666);
 
-    p[0] = open(rd_pipe, O_RDONLY);
-    p[1] = open(wr_pipe, O_WRONLY);
+    p = open(gevent, O_RDONLY);
 
-    close(p[0]);
-    close(p[1]);
+    close(p);
 
     return 0;
 }
