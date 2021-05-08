@@ -13,7 +13,8 @@ int main(int argc, char** argv) {
     mkfifo(gevent, 666);
 
     p = open(gevent, O_RDONLY);
-
+    char message[2048];
+    read(p,message,2048);
     close(p);
 
     return 0;
