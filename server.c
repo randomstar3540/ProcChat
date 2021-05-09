@@ -37,7 +37,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("%s",message);
     // uint16_t tcode = message[0] << 8 | message[1];
     memcpy(id,&message[3],256);
     memcpy(domain,&message[3+256],256);
@@ -46,13 +45,16 @@ int main(int argc, char** argv) {
     sprintf(p_WR_name,"%s/%s_WR",domain,id);
     sprintf(domain_path,"%s/",domain);
 
+    fprintf(stderr,"%s\n",domain);
+    fprintf(stderr,"%s",id);
+    fprintf(stderr,"%s",domain_path);
+
     struct stat st = {0};
     if (stat(domain_path, &st) == -1) {
         mkdir(domain_path, 0700);
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
-    sleep(5);
     unlink(p_RD_name);
     unlink(p_WR_name);
     remove(domain_path);
