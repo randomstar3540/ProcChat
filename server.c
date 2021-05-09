@@ -45,10 +45,6 @@ int main(int argc, char** argv) {
     sprintf(p_WR_name,"%s/%s_WR",domain,id);
     sprintf(domain_path,"%s/",domain);
 
-    fprintf(stderr,"%s\n",domain);
-    fprintf(stderr,"%s\n",id);
-    fprintf(stderr,"%s\n",domain_path);
-
     struct stat st = {0};
     if (stat(domain_path, &st) == -1) {
         mkdir(domain_path, 0700);
