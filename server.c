@@ -38,8 +38,8 @@ int main(int argc, char** argv) {
     }
 
     // uint16_t tcode = message[0] << 8 | message[1];
-    memcpy(id,&message[3],256);
-    memcpy(domain,&message[3+256],256);
+    memcpy(id,&message[2],256);
+    memcpy(domain,&message[2+256],256);
 
     sprintf(p_RD_name,"%s/%s_RD",domain,id);
     sprintf(p_WR_name,"%s/%s_WR",domain,id);
