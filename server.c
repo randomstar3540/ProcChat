@@ -55,10 +55,6 @@ int main(int argc, char** argv) {
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
-    sleep(1);
-    unlink(p_RD_name);
-    unlink(p_WR_name);
-    remove(domain_path);
 
     return 0;
 }
