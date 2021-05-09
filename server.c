@@ -45,8 +45,8 @@ int main(int argc, char** argv) {
     sprintf(p_WR_name,"%s/%s_WR",domain,id);
     sprintf(domain_path,"%s/",domain);
 
-    fprintf(stderr,"%s\n",domain);
-    fprintf(stderr,"%s\n",id);
+    fprintf(stderr,"%s\n",p_RD_name);
+    fprintf(stderr,"%s\n",p_WR_name);
     fprintf(stderr,"%s\n",domain_path);
 
     struct stat st = {0};
@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
+    sleep(1);
     unlink(p_RD_name);
     unlink(p_WR_name);
     remove(domain_path);
