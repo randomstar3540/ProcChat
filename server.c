@@ -30,14 +30,15 @@ int main(int argc, char** argv) {
     memcpy(id,&message[3],256);
     memcpy(domain,&message[3+256],256);
 
-    sprintf(p_RD_name,"%s_RD",id);
-    sprintf(p_WR_name,"%s_WR",id);
+    sprintf(p_RD_name,"%s/%s_RD",domain,id);
+    sprintf(p_WR_name,"%s/%s_WR",domain,id);
     sprintf(domain_path,"%s/",domain);
     if (stat(domain_path, &st) == -1) {
         mkdir(domain_path, 0700);
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
+    sleep(5);
 
     unlink(gevent);
     unlink(p_RD_name);
