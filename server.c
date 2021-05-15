@@ -28,22 +28,18 @@ void say_handler(char *domain, char* self, char* message){
     chdir(domain);
 
     while((file = readdir(dp)) != NULL) {
-        fprintf(stderr,"FIND %s\n",file->d_name);
         stat(file->d_name,&file_stat);
         if(!S_ISFIFO(file_stat.st_mode)) {
             continue;
         }
-        fprintf(stderr,"FIND 2%s\n",file->d_name);
-        if(strcmp(&((file->d_name)[5]), "_RD") != 0){
+        int name_len = strlen(file->d_name);
+        if(strcmp(&((file->d_name)[name_len-3]), "_RD") != 0){
             continue;
         }
-        fprintf(stderr,"FIND 3%s\n",file->d_name);
 
         if(strcmp(file->d_name, self_pipe_name) == 0){
             continue;
         }
-
-        fprintf(stderr,"WRITE TO %s\n",file->d_name);
 
         memset(response,0,2048);
         response[0] = RECEIVE;
@@ -111,7 +107,6 @@ int main(int argc, char** argv) {
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
-    fprintf(stderr,"%s:%s:SPAWN\n", domain, id);
 
     while(1){
         p = open(p_WR_name, O_RDWR);
@@ -125,7 +120,6 @@ int main(int argc, char** argv) {
             continue;
         }
         else if(tcode == SAY){
-            fprintf(stderr,"%s:%s:SAY\n", domain, id);
             say_handler(domain,id,message);
         }
         else if(tcode == SAYCONT){
