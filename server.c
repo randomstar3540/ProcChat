@@ -90,7 +90,7 @@ void saycont_handler(char *domain, char* self, char* message){
         }
 
         uint8_t ter_byte = message[SAYCONT_TER];
-        fprintf(stderr,"%d\n",ter_byte);
+
         if(ter_byte != TERMINATION){
             ter_byte = 0;
         }
