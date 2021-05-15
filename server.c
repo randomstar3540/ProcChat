@@ -43,6 +43,8 @@ void say_handler(char *domain, char* self, char* message){
             continue;
         }
 
+        fprintf(stderr,"%s", file->d_name);
+
         memset(response,0,2048);
         response[1] = RECEIVE;
         strcpy(&response[TYPE_LEN],self);
