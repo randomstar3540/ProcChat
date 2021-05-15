@@ -28,7 +28,7 @@ void say_handler(char *domain, char* self, char* message){
     chdir(domain);
 
     while((file = readdir(dp)) != NULL) {
-
+        fprintf(stderr,"FIND %s\n",file->d_name);
         stat(file->d_name,&file_stat);
         if(!S_ISFIFO(file_stat.st_mode)) {
             continue;
@@ -41,7 +41,7 @@ void say_handler(char *domain, char* self, char* message){
             continue;
         }
 
-        fprintf(stderr,"%s\n",file->d_name);
+        fprintf(stderr,"WRITE TO %s\n",file->d_name);
 
         memset(response,0,2048);
         response[0] = RECEIVE;
