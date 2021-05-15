@@ -48,7 +48,7 @@ void say_handler(char *domain, char* self, char* message){
                &message[TYPE_LEN], 1790);
 
         p = open(file->d_name, O_WRONLY);
-        // write(p,response,2048);
+        write(p,response,2048);
         close(p);
 
     }
