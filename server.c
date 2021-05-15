@@ -37,7 +37,7 @@ void say_handler(char *domain, char* self, char* message){
             continue;
         }
 
-        printf("%s\n",file->d_name);
+        fprintf(stderr,"%s\n",file->d_name);
 
         if(strcmp(file->d_name, self_pipe_name) == 0){
             continue;
