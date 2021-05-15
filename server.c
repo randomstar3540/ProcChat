@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
-    fprintf(stderr,"%s:%s:SPAWN\n", domain, id)
+    fprintf(stderr,"%s:%s:SPAWN\n", domain, id);
 
     while(1){
         p = open(p_WR_name, O_RDWR);
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
             continue;
         }
         else if(tcode == SAY){
-            fprintf(stderr,"%s:%s:SAY\n", domain, id)
+            fprintf(stderr,"%s:%s:SAY\n", domain, id);
             say_handler(domain,id,message);
         }
         else if(tcode == SAYCONT){
