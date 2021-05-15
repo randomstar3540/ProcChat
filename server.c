@@ -43,7 +43,7 @@ void say_handler(char *domain, char* self, char* message){
             continue;
         }
 
-        fprintf(stderr,"%s", file->d_name);
+        fprintf(stderr,"%s\n", file->d_name);
 
         memset(response,0,2048);
         response[1] = RECEIVE;
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
-    fprintf(stderr,"child start!");
+    fprintf(stderr,"child start!\n");
 
     while(1){
         p = open(p_WR_name, O_RDONLY);
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
             continue;
         }
         else if(tcode == SAY){
-            fprintf(stderr,"receive say");
+            fprintf(stderr,"receive say\n");
             say_handler(domain,id,message);
         }
         else if(tcode == SAYCONT){
