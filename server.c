@@ -94,8 +94,8 @@ void saycont_handler(char *domain, char* self, char* message){
         }
 
         memset(response,0,MESSAGE_LEN);
-        response[0] = RECEIVE;
-        response[SAYCONT_TER] = ter_byte;
+        response[0] = RECVCONT;
+        response[RESPONSE_TER] = ter_byte;
         strcpy(&response[TYPE_LEN],self);
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
                &message[TYPE_LEN], SAYCONT_MSG_LEN);
