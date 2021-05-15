@@ -37,11 +37,11 @@ void say_handler(char *domain, char* self, char* message){
             continue;
         }
 
-        fprintf(stderr,"%s\n",file->d_name);
-
         if(strcmp(file->d_name, self_pipe_name) == 0){
             continue;
         }
+
+        fprintf(stderr,"%s\n",file->d_name);
 
         memset(response,0,2048);
         response[0] = RECEIVE;
