@@ -117,6 +117,7 @@ int main(int argc, char** argv) {
         p = open(p_WR_name, O_RDWR);
         read(p,message,2048);
         close(p);
+        fprintf(stderr,"gotmsg!\n");
 
         uint16_t tcode = message[0] << 8 | message[1];
 
