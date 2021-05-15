@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
         fprintf(stderr,"gotmsg!\n");
 
         uint16_t tcode = message[0] << 8 | message[1];
-        fprintf(stderr,"%s!\n",tcode);
+        fprintf(stderr,"%d!\n",tcode);
 
         if(tcode == CONNECT){
             continue;
