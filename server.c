@@ -41,14 +41,67 @@ void say_handler(char *domain, char* self, char* message){
             continue;
         }
 
-        memset(response,0,2048);
+        memset(response,0,MESSAGE_LEN);
         response[0] = RECEIVE;
         strcpy(&response[TYPE_LEN],self);
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
-               &message[TYPE_LEN], 1790);
+               &message[TYPE_LEN], SAY_MSG_LEN);
 
         p = open(file->d_name, O_WRONLY);
-        write(p,response,2048);
+        write(p,response,MESSAGE_LEN);
+        close(p);
+
+    }
+
+    chdir("..");
+    closedir(dp);
+}
+
+void saycont_handler(char *domain, char* self, char* message){
+    DIR *dp;
+    struct dirent *file;
+    struct stat file_stat;
+    int p;
+    char self_pipe_name[PIPE_NAME_MAX];
+    char response[MESSAGE_LEN];
+
+    sprintf(self_pipe_name,"%s_RD",self);
+
+    if((dp = opendir(domain)) == NULL) {
+        fprintf(stderr,"cannot open directory: %s\n", domain);
+        return;
+    }
+
+    chdir(domain);
+
+    while((file = readdir(dp)) != NULL) {
+        stat(file->d_name,&file_stat);
+        if(!S_ISFIFO(file_stat.st_mode)) {
+            continue;
+        }
+        int name_len = strlen(file->d_name);
+        if(strcmp(&((file->d_name)[name_len-3]), "_RD") != 0){
+            continue;
+        }
+
+        if(strcmp(file->d_name, self_pipe_name) == 0){
+            continue;
+        }
+
+        uint8_t ter_byte = message[SAYCONT_TER];
+        if(ter_byte != TERMINATION){
+            ter_byte = 0;
+        }
+
+        memset(response,0,MESSAGE_LEN);
+        response[0] = RECEIVE;
+        response[SAYCONT_TER] = ter_byte;
+        strcpy(&response[TYPE_LEN],self);
+        memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
+               &message[TYPE_LEN], SAYCONT_MSG_LEN);
+
+        p = open(file->d_name, O_WRONLY);
+        write(p,response,MESSAGE_LEN);
         close(p);
 
     }
@@ -123,7 +176,7 @@ int main(int argc, char** argv) {
             say_handler(domain,id,message);
         }
         else if(tcode == SAYCONT){
-            continue;
+            saycont_handler(domain,id,message);
         }
         else if(tcode == PING){
             continue;
