@@ -5,6 +5,9 @@
 #define CONTENTS_LEN 2046
 #define TYPE_LEN 2
 #define SAY_MSG_LEN 1790
+#define SAYCONT_MSG_LEN 1789
+#define SAYCONT_TER 2045
+#define TERMINATION 255
 #define PIPE_NAME_MAX 256
 #define PIPE_PATH_MAX 515
 
