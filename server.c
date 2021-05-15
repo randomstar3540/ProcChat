@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
 
     pid_t child;
     while(1){
-        p = open(gevent, O_RDONLY);
+        p = open(gevent, O_RDWR);
         read(p,message,MESSAGE_LEN);
         close(p);
 
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
     fprintf(stderr,"child start!\n");
 
     while(1){
-        p = open(p_WR_name, O_RDONLY);
+        p = open(p_WR_name, O_RDWR);
         read(p,message,2048);
         close(p);
 
