@@ -123,6 +123,7 @@ int main(int argc, char** argv) {
             continue;
         }
         else if(tcode == SAY){
+            fprintf(stderr,"receive say");
             say_handler(domain,id,message);
         }
         else if(tcode == SAYCONT){
