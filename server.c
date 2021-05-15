@@ -49,9 +49,9 @@ void say_handler(char *domain, char* self, char* message){
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
                &message[TYPE_LEN], 1790);
 
-        p = open(file->d_name, O_WRONLY);
-        write(p,response,2048);
-        close(p);
+        // p = open(file->d_name, O_WRONLY);
+        // write(p,response,2048);
+        // close(p);
 
     }
 
