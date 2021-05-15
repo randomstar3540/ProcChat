@@ -100,9 +100,7 @@ void saycont_handler(char *domain, char* self, char* message){
                &message[TYPE_LEN], SAYCONT_MSG_LEN);
 
         response[0] = RECVCONT;
-        response[RESPONSE_TER] = ter_byte;
-
-        fprintf(stderr,"2045:%d 2046:%d 2047:%d",message[2045],message[2046],message[2047]);
+        response[SAYCONT_TER] = ter_byte;
 
         p = open(file->d_name, O_WRONLY);
         write(p,response,MESSAGE_LEN);
