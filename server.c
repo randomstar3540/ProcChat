@@ -44,7 +44,7 @@ void say_handler(char *domain, char* self, char* message){
         }
 
         memset(response,0,2048);
-        response[1] = RECEIVE;
+        response[0] = RECEIVE;
         strcpy(&response[TYPE_LEN],self);
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
                &message[TYPE_LEN], 1790);
@@ -109,13 +109,11 @@ int main(int argc, char** argv) {
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
-    fprintf(stderr,"child start!\n");
 
     while(1){
         p = open(p_WR_name, O_RDWR);
         read(p,message,2048);
         close(p);
-        fprintf(stderr,"gotmsg!\n");
 
         uint16_t tcode = message[1] << 8 | message[0];
 
@@ -124,7 +122,6 @@ int main(int argc, char** argv) {
             continue;
         }
         else if(tcode == SAY){
-            fprintf(stderr,"receive say\n");
             say_handler(domain,id,message);
         }
         else if(tcode == SAYCONT){
