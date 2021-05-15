@@ -33,9 +33,11 @@ void say_handler(char *domain, char* self, char* message){
         if(!S_ISFIFO(file_stat.st_mode)) {
             continue;
         }
+        fprintf(stderr,"FIND 2%s\n",file->d_name);
         if(strcmp(&((file->d_name)[5]), "_RD") != 0){
             continue;
         }
+        fprintf(stderr,"FIND 3%s\n",file->d_name);
 
         if(strcmp(file->d_name, self_pipe_name) == 0){
             continue;
