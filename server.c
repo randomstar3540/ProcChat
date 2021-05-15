@@ -111,6 +111,7 @@ int main(int argc, char** argv) {
     }
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
+    fprintf(stderr,"child start!");
 
     while(1){
         p = open(p_WR_name, O_RDONLY);
