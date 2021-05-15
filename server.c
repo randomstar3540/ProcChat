@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
 
         uint16_t tcode = message[0] << 8 | message[1];
         fprintf(stderr,"%d!\n",tcode);
-        fprintf(stderr,"%d!\n",message[0] << 8);
+        fprintf(stderr,"%d!\n",message[0]);
         fprintf(stderr,"%d!\n",message[1]);
 
 
