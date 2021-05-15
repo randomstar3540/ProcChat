@@ -43,8 +43,6 @@ void say_handler(char *domain, char* self, char* message){
             continue;
         }
 
-        fprintf(stderr,"%s\n", file->d_name);
-
         memset(response,0,2048);
         response[1] = RECEIVE;
         strcpy(&response[TYPE_LEN],self);
@@ -74,7 +72,7 @@ int main(int argc, char** argv) {
         read(p,message,MESSAGE_LEN);
         close(p);
 
-        uint16_t tcode = message[0] << 8 | message[1];
+        uint16_t tcode = message[1] << 8 | message[0];
 
         if(tcode != CONNECT){
             continue;
@@ -119,10 +117,7 @@ int main(int argc, char** argv) {
         close(p);
         fprintf(stderr,"gotmsg!\n");
 
-        uint16_t tcode = message[0] << 8 | message[1];
-        fprintf(stderr,"%d!\n",tcode);
-        fprintf(stderr,"%d!\n",message[0]);
-        fprintf(stderr,"%d!\n",message[1]);
+        uint16_t tcode = message[1] << 8 | message[0];
 
 
         if(tcode == CONNECT){
