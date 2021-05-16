@@ -3,10 +3,12 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <signal.h>
 
 #include "server.h"
 
@@ -113,6 +115,17 @@ void saycont_handler(char *domain, char* self, char* message){
     closedir(dp);
 }
 
+void handle_sig_usr1(){
+    int status;
+    pid_t pid;
+    sleep(1);
+
+    while((pid = waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0){
+        continue;
+    }
+
+    return;
+}
 
 int main(int argc, char** argv) {
     int p;
@@ -121,6 +134,10 @@ int main(int argc, char** argv) {
     char message[MESSAGE_LEN];
 
     pid_t child;
+    pid_t parent_pid;
+    parent_pid = getpid();
+
+    signal(SIGUSR1, handle_sig_usr1);
     while(1){
         p = open(gevent, O_RDWR);
         read(p,message,MESSAGE_LEN);
@@ -172,7 +189,6 @@ int main(int argc, char** argv) {
 
         uint16_t tcode = message[1] << 8 | message[0];
 
-
         if(tcode == CONNECT){
             continue;
         }
@@ -192,10 +208,10 @@ int main(int argc, char** argv) {
             continue;
         }
     }
-    printf("disconnect!\n");
 
     unlink(p_RD_name);
     unlink(p_WR_name);
+    kill(parent_pid,SIGUSR1);
 
     return 0;
 }
