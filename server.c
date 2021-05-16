@@ -165,6 +165,7 @@ int main(int argc, char** argv) {
     mkfifo(p_WR_name, 0666);
 
     while(1){
+
         p = open(p_WR_name, O_RDWR);
         read(p,message,2048);
         close(p);
