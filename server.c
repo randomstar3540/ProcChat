@@ -6,6 +6,8 @@
 #include <sys/wait.h>
 #include <stdint.h>
 #include <string.h>
+#include <poll.h>
+#include <time.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <signal.h>
@@ -46,7 +48,7 @@ void say_handler(char *domain, char* self, char* message){
         memset(response,0,MESSAGE_LEN);
         strcpy(&response[TYPE_LEN],self);
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
-               &message[TYPE_LEN], SAY_MSG_LEN);
+            &message[TYPE_LEN], SAY_MSG_LEN);
 
         response[0] = RECEIVE;
 
@@ -100,7 +102,7 @@ void saycont_handler(char *domain, char* self, char* message){
         memset(response,0,MESSAGE_LEN);
         strcpy(&response[TYPE_LEN],self);
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
-               &message[TYPE_LEN], SAYCONT_MSG_LEN);
+            &message[TYPE_LEN], SAYCONT_MSG_LEN);
 
         response[0] = RECVCONT;
         response[SAYCONT_TER] = ter_byte;
@@ -120,7 +122,7 @@ void handle_sig_usr1(){
     pid_t pid;
     sleep(1);
 
-    while((pid = waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0){
+    while((pid = waitpid(-1, &status, WNOHANG|WUNTRACED)) > 0){
         continue;
     }
 
@@ -181,33 +183,73 @@ int main(int argc, char** argv) {
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
 
+    int p_rd;
+    int p_wr;
+    p_rd = open(p_RD_name, O_RDWR);
+    p_wr = open(p_WR_name, O_RDWR);
+
+    struct pollfd npipes[2];
+    npipes[0].fd = p_wr;
+    npipes[0].events = POLLIN;
+    npipes[1].fd = p_rd;
+    npipes[1].events = POLLOUT;
+
+    time_t last_ping;
+    time_t last_pong;
+    time_t now;
+
     while(1){
+        int ret = poll(npipes, 2, 5);
+        time(&now);
 
-        p = open(p_WR_name, O_RDWR);
-        read(p,message,2048);
-        close(p);
+        if (ret == -1){
+            printf("poll error\n");
+            exit(1);
+        }
 
-        uint16_t tcode = message[1] << 8 | message[0];
 
-        if(tcode == CONNECT){
-            continue;
+        if (npipes[0].revents & POLLIN) {
+            read(p_wr,message,2048);
+
+            uint16_t tcode = message[1] << 8 | message[0];
+
+            if(tcode == CONNECT){
+                continue;
+            }
+            else if(tcode == SAY){
+                say_handler(domain,id,message);
+            }
+            else if(tcode == SAYCONT){
+                saycont_handler(domain,id,message);
+            }
+            else if(tcode == PONG){
+                time(&last_pong);
+                continue;
+            }
+            else if(tcode == DISCONNECT){
+                break;
+            }
+            else{
+                continue;
+            }
         }
-        else if(tcode == SAY){
-            say_handler(domain,id,message);
-        }
-        else if(tcode == SAYCONT){
-            saycont_handler(domain,id,message);
-        }
-        else if(tcode == PING){
-            continue;
-        }
-        else if(tcode == DISCONNECT){
-            break;
-        }
-        else{
-            continue;
+
+        if (npipes[1].revents & POLLOUT) {
+            int ping_diff = difftime(now, last_ping);
+            int pong_diff = difftime(now, last_pong);
+            if(ping_diff >= 15){
+                char response[MESSAGE_LEN];
+                memset(response,0,MESSAGE_LEN);
+                response[0] = PING;
+                write(p_rd,response,MESSAGE_LEN);
+                time(&last_ping);
+            }
+            if(last_pong >= 15){
+                break;
+            }
         }
     }
+    close(p);
 
     unlink(p_RD_name);
     unlink(p_WR_name);
