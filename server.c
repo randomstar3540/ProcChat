@@ -238,7 +238,6 @@ int main(int argc, char** argv) {
         double ping_diff = difftime(now, last_ping);
         double pong_diff = difftime(now, last_pong);
         if(ping_diff >= 15){
-            printf("%f",last_ping);
             char response[MESSAGE_LEN];
             memset(response,0,MESSAGE_LEN);
             response[0] = PING;
@@ -249,7 +248,6 @@ int main(int argc, char** argv) {
             continue;
         }
         if(pong_diff >= 15){
-            printf("%f",pong_diff);
             break;
         }
     }
