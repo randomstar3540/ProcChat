@@ -183,9 +183,8 @@ int main(int argc, char** argv) {
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
 
-    int p_rd;
     int p_wr;
-    p_rd = open(p_RD_name, O_RDWR);
+    int p_rd;
     p_wr = open(p_WR_name, O_RDWR);
 
     struct pollfd npipes[2];
@@ -241,7 +240,7 @@ int main(int argc, char** argv) {
             char response[MESSAGE_LEN];
             memset(response,0,MESSAGE_LEN);
             response[0] = PING;
-            p_rd = open(p_RD_name, O_RDWR);
+            p_rd = open(p_RD_name, O_WRONLY);
             write(p_rd,response,MESSAGE_LEN);
             close(p_wr);
             time(&last_ping);
@@ -256,7 +255,6 @@ int main(int argc, char** argv) {
     unlink(p_RD_name);
     unlink(p_WR_name);
     kill(parent_pid,SIGUSR1);
-    printf("killed!\n");
 
     return 0;
 }
