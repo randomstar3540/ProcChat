@@ -191,12 +191,13 @@ int main(int argc, char** argv) {
     struct pollfd npipes[2];
     npipes[0].fd = p_wr;
     npipes[0].events = POLLIN;
-    npipes[1].fd = p_rd;
-    npipes[1].events = POLLOUT;
 
     time_t last_ping;
     time_t last_pong;
     time_t now;
+
+    time(&last_ping);
+    time(&last_pong);
 
     while(1){
         int ret = poll(npipes, 2, 5);
@@ -234,19 +235,22 @@ int main(int argc, char** argv) {
             }
         }
 
-        if (npipes[1].revents & POLLOUT) {
-            int ping_diff = difftime(now, last_ping);
-            int pong_diff = difftime(now, last_pong);
-            if(ping_diff >= 15){
-                char response[MESSAGE_LEN];
-                memset(response,0,MESSAGE_LEN);
-                response[0] = PING;
-                write(p_rd,response,MESSAGE_LEN);
-                time(&last_ping);
-            }
-            if(pong_diff >= 15){
-                break;
-            }
+        double ping_diff = difftime(now, last_ping);
+        double pong_diff = difftime(now, last_pong);
+        if(ping_diff >= 15){
+            printf("%f",last_ping);
+            char response[MESSAGE_LEN];
+            memset(response,0,MESSAGE_LEN);
+            response[0] = PING;
+            p_rd = open(p_RD_name, O_RDWR);
+            write(p_rd,response,MESSAGE_LEN);
+            close(p_wr);
+            time(&last_ping);
+            continue;
+        }
+        if(pong_diff >= 15){
+            printf("%f",pong_diff);
+            break;
         }
     }
     close(p);
@@ -254,6 +258,7 @@ int main(int argc, char** argv) {
     unlink(p_RD_name);
     unlink(p_WR_name);
     kill(parent_pid,SIGUSR1);
+    printf("killed!\n");
 
     return 0;
 }
