@@ -214,9 +214,9 @@ int main(int argc, char** argv) {
         }
         if (child) {
             /*
-             * Parent: print child's pid
+             * Parent: continue listening
              */
-            printf("%d\n",child);
+            continue;
         }else{
             /*
              * Child: break the loop.
@@ -324,7 +324,7 @@ int main(int argc, char** argv) {
             char response[MESSAGE_LEN];
             memset(response,0,MESSAGE_LEN);
             response[0] = PING;
-            p_rd = open(p_RD_name, O_WRONLY);
+            p_rd = open(p_RD_name, O_RDWR);
             if (p_rd == -1){
                 return -1;
             }
@@ -340,8 +340,7 @@ int main(int argc, char** argv) {
             break;
         }
     }
-    close(p);
-
+    close(p_rd);
     unlink(p_RD_name);
     unlink(p_WR_name);
     kill(parent_pid,SIGUSR1);
