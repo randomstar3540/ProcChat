@@ -9,7 +9,8 @@ procchat: $(SRC) $(HEADERS)
 	$(CC) $(CFLAGS) $(DFLAGS) $(SRC) -o $@
 
 test:
-	$(CC) $(CFLAGS) $(PFLAGS) $(SRC) -o $@
+	chmod +x test.sh
+	./test.sh
 
 clean:
 	rm -f procchat
