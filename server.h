@@ -36,5 +36,10 @@
 #define GEVENT_PIPE "gevent"
 
 #define POLL_TIMEOUT 1000
+#define CONN_TIMEOUT 15
 #define NFDS 2
+
+#define PIPE_MODE 0666
+#define FOLDER_MODE 0700
+#define CMP_LEN 3
 #endif

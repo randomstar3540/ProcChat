@@ -29,7 +29,7 @@ void say_handler(char *domain, char *self, char *message) {
             continue;
         }
         int name_len = strlen(file->d_name);
-        if (strcmp(&((file->d_name)[name_len - 3]), "_RD") != 0) {
+        if (strcmp(&((file->d_name)[name_len - CMP_LEN]), "_RD") != 0) {
             /*
              * Get the last three char and compare
              */
@@ -98,7 +98,7 @@ void saycont_handler(char *domain, char *self, char *message) {
             continue;
         }
         int name_len = strlen(file->d_name);
-        if (strcmp(&((file->d_name)[name_len - 3]), "_RD") != 0) {
+        if (strcmp(&((file->d_name)[name_len - CMP_LEN]),"_RD") != 0) {
             /*
              * Get the last three char and compare
              */
@@ -167,7 +167,7 @@ void handle_sig_usr1() {
 
 int main(int argc, char **argv) {
     int p;
-    mkfifo(GEVENT_PIPE, 0666);
+    mkfifo(GEVENT_PIPE, PIPE_MODE);
     char message[MESSAGE_LEN];
 
     pid_t child;
@@ -217,8 +217,8 @@ int main(int argc, char **argv) {
 
     char id[PIPE_NAME_MAX];
     char domain[PIPE_NAME_MAX];
-    memcpy(id, &message[2], PIPE_NAME_MAX);
-    memcpy(domain, &message[2 + PIPE_NAME_MAX], PIPE_NAME_MAX);
+    memcpy(id, &message[TYPE_LEN], PIPE_NAME_MAX);
+    memcpy(domain, &message[TYPE_LEN + PIPE_NAME_MAX], PIPE_NAME_MAX);
 
     char p_RD_name[PIPE_PATH_MAX];
     char p_WR_name[PIPE_PATH_MAX];
@@ -230,10 +230,10 @@ int main(int argc, char **argv) {
 
     struct stat st = {0};
     if (stat(domain_path, &st) == -1) {
-        mkdir(domain_path, 0700);
+        mkdir(domain_path, FOLDER_MODE);
     }
-    mkfifo(p_RD_name, 0666);
-    mkfifo(p_WR_name, 0666);
+    mkfifo(p_RD_name, PIPE_MODE);
+    mkfifo(p_WR_name, PIPE_MODE);
 
 
     /*
@@ -297,7 +297,7 @@ int main(int argc, char **argv) {
 
         double ping_diff = difftime(now, last_ping);
         double pong_diff = difftime(now, last_pong);
-        if (ping_diff >= 15) {
+        if (ping_diff >= CONN_TIMEOUT) {
             /*
              * Send PING every 15 sec.
              */
@@ -313,7 +313,7 @@ int main(int argc, char **argv) {
             time(&last_ping);
             continue;
         }
-        if (pong_diff >= 15) {
+        if (pong_diff >= CONN_TIMEOUT) {
             /*
              * If no PONG send back in 15 sec, quit.
              */
