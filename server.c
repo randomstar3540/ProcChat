@@ -1,17 +1,3 @@
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdint.h>
-#include <string.h>
-#include <poll.h>
-#include <time.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <signal.h>
-
 #include "server.h"
 
 void say_handler(char *domain, char *self, char *message) {
@@ -181,8 +167,7 @@ void handle_sig_usr1() {
 
 int main(int argc, char **argv) {
     int p;
-    char *gevent = "gevent";
-    mkfifo(gevent, 0666);
+    mkfifo(GEVENT_PIPE, 0666);
     char message[MESSAGE_LEN];
 
     pid_t child;
@@ -194,7 +179,7 @@ int main(int argc, char **argv) {
         /*
          * Start global process
          */
-        p = open(gevent, O_RDWR);
+        p = open(GEVENT_PIPE, O_RDWR);
         if (p == -1) {
             return -1;
         }

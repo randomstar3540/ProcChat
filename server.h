@@ -1,6 +1,20 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdint.h>
+#include <string.h>
+#include <poll.h>
+#include <time.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <signal.h>
+
 #define MESSAGE_LEN 2048
 #define CONTENTS_LEN 2046
 #define TYPE_LEN 2
@@ -19,7 +33,7 @@
 #define PING 5
 #define PONG 6
 #define DISCONNECT 7
-
+#define GEVENT_PIPE "gevent"
 
 #define POLL_TIMEOUT 1000
 #define NFDS 2
