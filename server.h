@@ -20,4 +20,7 @@
 #define PONG 6
 #define DISCONNECT 7
 
+
+#define POLL_TIMEOUT 1000
+#define NFDS 2
 #endif

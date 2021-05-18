@@ -15,6 +15,9 @@
 #include "server.h"
 
 void say_handler(char *domain, char* self, char* message){
+    /*
+     * Handle SAY requests from client, reply with RECEIVE
+     */
     DIR *dp;
     struct dirent *file;
     struct stat file_stat;
@@ -32,19 +35,31 @@ void say_handler(char *domain, char* self, char* message){
     chdir(domain);
 
     while((file = readdir(dp)) != NULL) {
+        /*
+         * Loop over the folder, find FIFOs ended with "_RD"
+         */
         stat(file->d_name,&file_stat);
         if(!S_ISFIFO(file_stat.st_mode)) {
             continue;
         }
         int name_len = strlen(file->d_name);
         if(strcmp(&((file->d_name)[name_len-3]), "_RD") != 0){
+            /*
+             * Get the last three char and compare
+             */
             continue;
         }
 
         if(strcmp(file->d_name, self_pipe_name) == 0){
+            /*
+             * Check if st is self
+             */
             continue;
         }
 
+        /*
+         * Create a response message
+         */
         memset(response,0,MESSAGE_LEN);
         strcpy(&response[TYPE_LEN],self);
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
@@ -52,7 +67,13 @@ void say_handler(char *domain, char* self, char* message){
 
         response[0] = RECEIVE;
 
+        /*
+         * Write the message, in blocking mode
+         */
         p = open(file->d_name, O_WRONLY);
+        if (p == -1){
+            return;
+        }
         write(p,response,MESSAGE_LEN);
         close(p);
 
@@ -63,6 +84,9 @@ void say_handler(char *domain, char* self, char* message){
 }
 
 void saycont_handler(char *domain, char* self, char* message){
+    /*
+     * Handle SAYCONT requests from client, reply with RECVCONT
+     */
     DIR *dp;
     struct dirent *file;
     struct stat file_stat;
@@ -80,25 +104,39 @@ void saycont_handler(char *domain, char* self, char* message){
     chdir(domain);
 
     while((file = readdir(dp)) != NULL) {
+        /*
+         * Loop over the folder, find FIFOs ended with "_RD"
+         */
         stat(file->d_name,&file_stat);
         if(!S_ISFIFO(file_stat.st_mode)) {
             continue;
         }
         int name_len = strlen(file->d_name);
         if(strcmp(&((file->d_name)[name_len-3]), "_RD") != 0){
+            /*
+             * Get the last three char and compare
+             */
             continue;
         }
 
         if(strcmp(file->d_name, self_pipe_name) == 0){
+            /*
+             * Check if st is self
+             */
             continue;
         }
-
+        /*
+         * Get the termination byte
+         */
         uint8_t ter_byte = message[SAYCONT_TER];
 
         if(ter_byte != TERMINATION){
             ter_byte = 0;
         }
 
+        /*
+         * Create a response message
+         */
         memset(response,0,MESSAGE_LEN);
         strcpy(&response[TYPE_LEN],self);
         memcpy(&response[TYPE_LEN+PIPE_NAME_MAX],
@@ -107,7 +145,13 @@ void saycont_handler(char *domain, char* self, char* message){
         response[0] = RECVCONT;
         response[SAYCONT_TER] = ter_byte;
 
+        /*
+         * Write the message, in blocking mode
+         */
         p = open(file->d_name, O_WRONLY);
+        if (p == -1){
+            return;
+        }
         write(p,response,MESSAGE_LEN);
         close(p);
 
@@ -118,11 +162,17 @@ void saycont_handler(char *domain, char* self, char* message){
 }
 
 void handle_sig_usr1(){
+    /*
+     * Handle client handlers exited.
+     */
     int status;
     pid_t pid;
     sleep(1);
 
     while((pid = waitpid(-1, &status, WNOHANG|WUNTRACED)) > 0){
+        /*
+         * Loop over all child exited.
+         */
         continue;
     }
 
@@ -141,7 +191,13 @@ int main(int argc, char** argv) {
 
     signal(SIGUSR1, handle_sig_usr1);
     while(1){
+        /*
+         * Start global process
+         */
         p = open(gevent, O_RDWR);
+        if (p == -1){
+            return -1;
+        }
         read(p,message,MESSAGE_LEN);
         close(p);
 
@@ -157,11 +213,22 @@ int main(int argc, char** argv) {
             exit(-1);
         }
         if (child) {
+            /*
+             * Parent: print child's pid
+             */
             printf("%d\n",child);
         }else{
-            break;//child
+            /*
+             * Child: break the loop.
+             */
+            break;
         }
     }
+
+    /*
+     * Client handler: calculate the name of pipe
+     * Create the pipe for the client
+     */
 
     char id[PIPE_NAME_MAX];
     char domain[PIPE_NAME_MAX];
@@ -183,9 +250,17 @@ int main(int argc, char** argv) {
     mkfifo(p_RD_name, 0666);
     mkfifo(p_WR_name, 0666);
 
+
+    /*
+     * Client handler: listening in non-blocking mode
+     */
     int p_wr;
     int p_rd;
     p_wr = open(p_WR_name, O_RDWR);
+    if (p_wr == -1){
+        kill(parent_pid,SIGUSR1);
+        return -1;
+    }
 
     struct pollfd npipes[2];
     npipes[0].fd = p_wr;
@@ -199,7 +274,10 @@ int main(int argc, char** argv) {
     time(&last_pong);
 
     while(1){
-        int ret = poll(npipes, 2, 5);
+        int ret = poll(npipes, NFDS, POLL_TIMEOUT);
+        /*
+         * reading in non-blocking mode
+         */
         time(&now);
 
         if (ret == -1){
@@ -209,7 +287,10 @@ int main(int argc, char** argv) {
 
 
         if (npipes[0].revents & POLLIN) {
-            read(p_wr,message,2048);
+            /*
+             * Reading pipe is ready
+             */
+            read(p_wr,message,MESSAGE_LEN);
 
             uint16_t tcode = message[1] << 8 | message[0];
 
@@ -237,16 +318,25 @@ int main(int argc, char** argv) {
         double ping_diff = difftime(now, last_ping);
         double pong_diff = difftime(now, last_pong);
         if(ping_diff >= 15){
+            /*
+             * Send PING every 15 sec.
+             */
             char response[MESSAGE_LEN];
             memset(response,0,MESSAGE_LEN);
             response[0] = PING;
             p_rd = open(p_RD_name, O_WRONLY);
+            if (p_rd == -1){
+                return -1;
+            }
             write(p_rd,response,MESSAGE_LEN);
             close(p_wr);
             time(&last_ping);
             continue;
         }
         if(pong_diff >= 15){
+            /*
+             * If no PONG send back in 15 sec, quit.
+             */
             break;
         }
     }
